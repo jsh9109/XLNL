@@ -1162,7 +1162,7 @@
                             <button onclick="copyToClipboard('jsh9109', this)">复制微信</button>
                         </div>
                         <div class="copy-item">
-                            <span id="alipayID">313360631@qq.com</span>
+                            <span id="alipayID"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="516260626267616762601120207f323e3c">[email&#160;protected]</a></span>
                             <button onclick="copyToClipboard('313360631@qq.com', this)">复制支付宝</button>
                         </div>
                     </div>
@@ -1274,7 +1274,7 @@
         </div>
     </div>
     
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         const ADMIN_PASSWORD = 'lss900201';
         const MASTER_CODE = "PSYAGE-MASTER";
         
@@ -1391,6 +1391,7 @@
             const errorDiv = document.getElementById('errorMessage');
             const cardCode = cardInput.value.trim().toUpperCase();
             
+            // 先检查万能卡号
             if (cardCode === MASTER_CODE) {
                 currentCard = MASTER_CODE;
                 showTestPage();
@@ -1403,12 +1404,15 @@
                 return;
             }
             
-            if (!/^PA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(cardCode)) {
-                if (!/^[A-Z0-9]{8,20}$/.test(cardCode)) {
-                    errorDiv.textContent = '卡号格式不正确';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
+            // 验证卡号格式（PA-XXXX-XXXX 或 任意8-20位字母数字）
+            const isValidFormat = /^PA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(cardCode) || 
+                                  /^[A-Z0-9]{8,20}$/.test(cardCode) ||
+                                  /^[A-Z0-9]+-[A-Z0-9]+-?[A-Z0-9]*$/.test(cardCode);
+            
+            if (!isValidFormat) {
+                errorDiv.textContent = '卡号格式不正确';
+                errorDiv.style.display = 'block';
+                return;
             }
             
             const deviceId = getDeviceFingerprint();
@@ -1946,10 +1950,4 @@
                         createdAt: new Date().toISOString()
                     });
                 }
-                localStorage.setItem('psychologicalAgeCards', JSON.stringify(testCards));
-                console.log('已生成10个测试卡密，请在管理员后台查看（密码：lss900201）');
-            }
-        };
-    </script>
-</body>
-</html>
+                localStorage.se
