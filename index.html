@@ -305,6 +305,13 @@
             text-align: center;
             margin-bottom: 30px;
         }
+        .age-comparison-card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
         
         .result-banner h2 {
             font-size: 2em;
@@ -968,6 +975,7 @@
             
             <div class="input-group">
                 <input type="text" id="cardInput" placeholder="请输入测评卡号" maxlength="20">
+                <input type="number" id="realAgeInput" placeholder="请输入您的实际年龄" min="5" max="100" style="width: 100%; padding: 18px; border: 2px solid #e6d9ff; border-radius: 12px; font-size: 1.1em; text-align: center; margin-top: 15px;">
             </div>
             
             <button class="btn btn-primary" onclick="verifyCard()">⏰ 开始测评</button>
@@ -1038,7 +1046,30 @@
                 <div class="age-score" id="ageScore">25岁</div>
                 <div class="age-label" id="ageStage">青年期 - 探索者</div>
             </div>
-            
+           <div class="age-comparison-card">
+    <h3 style="text-align: center; color: #4CAF50; margin-bottom: 30px;">心理年龄测试结果</h3>
+    
+    <div style="display: flex; justify-content: space-around; margin-bottom: 40px;">
+        <div style="text-align: center;">
+            <div style="color: #666; margin-bottom: 15px; font-size: 1.1em;">您的心理年龄</div>
+            <div style="background: #FFF3E0; padding: 20px 40px; border-radius: 15px;">
+                <span style="color: #FF9800; font-size: 2.5em; font-weight: bold;" id="psychAge">21岁</span>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="color: #666; margin-bottom: 15px; font-size: 1.1em;">您的实际年龄</div>
+            <div style="background: #E8EAF6; padding: 20px 40px; border-radius: 15px;">
+                <span style="color: #5C6BC0; font-size: 2.5em; font-weight: bold;" id="realAgeDisplay">21岁</span>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0;">
+        <div id="ageEmoji" style="font-size: 8em; margin: 20px 0;">😊</div>
+        <div id="ageDiffText" style="color: #4CAF50; font-size: 1.5em; font-weight: bold;">您的心理年龄年轻0岁</div>
+    </div>
+</div> 
             <div class="chart-container">
                 <canvas id="radarChart"></canvas>
             </div>
@@ -1187,7 +1218,30 @@
                 <div class="age-score" id="fullAgeScore">25岁</div>
                 <div class="age-label" id="fullAgeStage">青年期 - 探索者</div>
             </div>
-            
+            <div class="age-comparison-card">
+    <h3 style="text-align: center; color: #4CAF50; margin-bottom: 30px;">心理年龄测试结果</h3>
+    
+    <div style="display: flex; justify-content: space-around; margin-bottom: 40px;">
+        <div style="text-align: center;">
+            <div style="color: #666; margin-bottom: 15px; font-size: 1.1em;">您的心理年龄</div>
+            <div style="background: #FFF3E0; padding: 20px 40px; border-radius: 15px;">
+                <span style="color: #FF9800; font-size: 2.5em; font-weight: bold;" id="fullPsychAge">21岁</span>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <div style="color: #666; margin-bottom: 15px; font-size: 1.1em;">您的实际年龄</div>
+            <div style="background: #E8EAF6; padding: 20px 40px; border-radius: 15px;">
+                <span style="color: #5C6BC0; font-size: 2.5em; font-weight: bold;" id="fullRealAgeDisplay">21岁</span>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 40px 0;">
+        <div id="fullAgeEmoji" style="font-size: 8em; margin: 20px 0;">😊</div>
+        <div id="fullAgeDiffText" style="color: #4CAF50; font-size: 1.5em; font-weight: bold;">您的心理年龄年轻0岁</div>
+    </div>
+</div>
             <div class="chart-container">
                 <canvas id="fullRadarChart"></canvas>
             </div>
@@ -1445,8 +1499,15 @@
             card.lastUsedAt = new Date().toISOString();
             
             localStorage.setItem('psychologicalAgeCards', JSON.stringify(cards));
-            
+            // 验证实际年龄
+            const realAge = parseInt(document.getElementById('realAgeInput').value);
+            if (!realAge || realAge < 5 || realAge > 100) {
+                errorDiv.textContent = '请输入您的实际年龄（5-100岁）';
+                errorDiv.style.display = 'block';
+                return;
+            }
             currentCard = card;
+            sessionStorage.setItem('userRealAge', realAge);
             showTestPage();
         }
         
@@ -1583,7 +1644,45 @@
             document.getElementById('ageStage').textContent = result.stageName;
             document.getElementById('stageName').textContent = `"${result.stageName}"`;
             document.getElementById('stageDesc').textContent = result.stageDesc;
-            
+            // 获取用户输入的实际年龄
+const realAge = parseInt(sessionStorage.getItem('userRealAge')) || 21;
+const ageDiff = result.age - realAge;
+
+// 显示年龄对比
+document.getElementById('psychAge').textContent = result.age + '岁';
+document.getElementById('realAgeDisplay').textContent = realAge + '岁';
+
+// 根据年龄差异显示不同表情和文字
+let emoji = '😊';
+let diffText = '';
+let textColor = '#4CAF50';
+const absDiff = Math.abs(ageDiff);
+
+if (ageDiff < -15) {
+    emoji = '😊';
+    diffText = `您的心理年龄年轻${absDiff}岁`;
+    textColor = '#4CAF50';
+} else if (ageDiff < -5) {
+    emoji = '😊';
+    diffText = `您的心理年龄年轻${absDiff}岁`;
+    textColor = '#4CAF50';
+} else if (ageDiff <= 5) {
+    emoji = '😊';
+    diffText = ageDiff === 0 ? '您的心理年龄与实际年龄一致' : (ageDiff > 0 ? `您的心理年龄年长${absDiff}岁` : `您的心理年龄年轻${absDiff}岁`);
+    textColor = '#4CAF50';
+} else if (ageDiff <= 15) {
+    emoji = '😢';
+    diffText = `您的心理年龄年长${absDiff}岁`;
+    textColor = '#FF5722';
+} else {
+    emoji = '😭';
+    diffText = `您的心理年龄年长${absDiff}岁`;
+    textColor = '#FF5722';
+}
+
+document.getElementById('ageEmoji').textContent = emoji;
+document.getElementById('ageDiffText').textContent = diffText;
+document.getElementById('ageDiffText').style.color = textColor;
             drawRadarChart('radarChart', result.scores);
             
             const scoresList = document.getElementById('scoresList');
@@ -1680,7 +1779,47 @@
             
             document.getElementById('fullAgeScore').textContent = result.age + '岁';
             document.getElementById('fullAgeStage').textContent = result.stageName;
-            
+            // 获取用户输入的实际年龄
+const realAge = parseInt(sessionStorage.getItem('userRealAge')) || 21;
+const ageDiff = result.age - realAge;
+
+// 显示年龄对比（如果完整报告页面也有这些元素的话）
+if (document.getElementById('fullPsychAge')) {
+    document.getElementById('fullPsychAge').textContent = result.age + '岁';
+    document.getElementById('fullRealAgeDisplay').textContent = realAge + '岁';
+    
+    // 根据年龄差异显示不同表情和文字
+    let emoji = '😊';
+    let diffText = '';
+    let textColor = '#4CAF50';
+    const absDiff = Math.abs(ageDiff);
+
+    if (ageDiff < -15) {
+        emoji = '😊';
+        diffText = `您的心理年龄年轻${absDiff}岁`;
+        textColor = '#4CAF50';
+    } else if (ageDiff < -5) {
+        emoji = '😊';
+        diffText = `您的心理年龄年轻${absDiff}岁`;
+        textColor = '#4CAF50';
+    } else if (ageDiff <= 5) {
+        emoji = '😊';
+        diffText = ageDiff === 0 ? '您的心理年龄与实际年龄一致' : (ageDiff > 0 ? `您的心理年龄年长${absDiff}岁` : `您的心理年龄年轻${absDiff}岁`);
+        textColor = '#4CAF50';
+    } else if (ageDiff <= 15) {
+        emoji = '😢';
+        diffText = `您的心理年龄年长${absDiff}岁`;
+        textColor = '#FF5722';
+    } else {
+        emoji = '😭';
+        diffText = `您的心理年龄年长${absDiff}岁`;
+        textColor = '#FF5722';
+    }
+
+    document.getElementById('fullAgeEmoji').textContent = emoji;
+    document.getElementById('fullAgeDiffText').textContent = diffText;
+    document.getElementById('fullAgeDiffText').style.color = textColor;
+}
             // 生成详细分析
             generateFullAnalysis(result);
             
