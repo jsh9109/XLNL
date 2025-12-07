@@ -1599,13 +1599,13 @@
             
             // 计算心理年龄 (基于加权平均)
             // 童真指数负向影响，其他正向影响
-            const psychologicalAge = Math.round(
-                10 + // 基础年龄
-                (5 - finalScores[0]) * 10 + // 童真指数（反向）
-                finalScores[1] * 12 + // 成熟度
-                finalScores[2] * 10 + // 思维方式
-                finalScores[3] * 8   // 生活态度
-            );
+const psychologicalAge = Math.round(
+    15 + // 基础年龄
+    (5 - finalScores[0]) * 8 + // 童真指数(反向，减少权重)
+    finalScores[1] * 10 + // 成熟度
+    finalScores[2] * 8 + // 思维方式
+    finalScores[3] * 6   // 生活态度
+);
             
             // 限制在5-90岁范围
             const age = Math.max(5, Math.min(90, psychologicalAge));
